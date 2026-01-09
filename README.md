@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# React Client Pay Guard 💸
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **"If they don't pay, the site fades away."**
 
-Currently, two official plugins are available:
+A React component library designed for agencies and freelancers. It connects to your [Client Pay Guard API] to automatically fade a client's website to black if an invoice is overdue.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+It features **aggressive self-healing DOM reinforcement** to prevent clients or developers from easily removing the overlay via DevTools.
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **⏱ Automatic Opacity:** Calculates opacity based on the due date. 0% (invisible) when fresh, 100% (blackout) when overdue.
+- **🛡 Self-Healing DOM:** Uses `MutationObserver` to watch the DOM. If a user deletes the overlay node or changes its attributes (e.g., `display: none`), it immediately reinjects itself.
+- **🔒 Scroll Locking:** Automatically disables scrolling when the opacity reaches critical levels (>= 80%).
+- **👻 Randomized IDs:** Generates random element IDs on every mount to prevent static CSS overrides.
+- **🚀 Lightweight:** Built with Vite in Library Mode.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install react-client-pay-guard
+# or
+yarn add react-client-pay-guard`
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```tsx
+import React from "react";
+import { ClientGuardProvider } from "react-client-pay-guard";
+import App from "./App";
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+const Root = () => (
+  <ClientGuardProvider
+    apiKey="pk_live_YOUR_API_KEY"
+    projectSlug="my-client-website-he-didnt-pay"
+    heading="Service Suspended"
+    message="This website has been temporarily suspended due to an outstanding invoice. Please contact your developer ASAP."
+  >
+    <App />
+  </ClientGuardProvider>
+);
+
+export default Root;
 ```
+
+## Configuration
+
+| Prop        | Type   | Required | Description                                                        |
+| ----------- | ------ | -------- | ------------------------------------------------------------------ |
+| apiKey      | string | Yes      | The public API key from your Admin Dashboard.                      |
+| projectSlug | string | Yes      | The specific project identifier slug.                              |
+| heading     | string | Yes      | The headline displayed in the overlay (e.g., "Website Suspended"). |
+| message     | string | Yes      | The detailed message shown to the user.                            |
+
+## Security Note
+
+While this library makes it annoying and difficult for non-technical clients to bypass the overlay, client-side code can ultimately always be defeated by a knowledgeable developer with enough time.
+
+## License
+
+MIT © [Nova Consulting](https://novaconsulting.com.mx)
